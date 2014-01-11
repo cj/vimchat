@@ -985,10 +985,10 @@ class VimChatScope:
         nnoremap <buffer> <silent> r :py VimChat.refreshBuddyList()<CR>
         nnoremap <buffer> <silent> R :py VimChat.refreshBuddyList()<CR>
         nnoremap <buffer> <silent> <Leader>n /{{{ (<CR>
-        nnoremap <buffer> <silent> <Leader>c :py VimChat.openGroupChat()<CR>
         nnoremap <buffer> <silent> <Leader>ss :py VimChat.setStatus()<CR>
         nnoremap <buffer> <silent> <Space> :silent exec 'vertical resize ' . (winwidth('.') > g:vimchat_buddylistwidth ? (g:vimchat_buddylistwidth) : (g:vimchat_buddylistmaxwidth))<CR>
         """
+        # nnoremap <buffer> <silent> <Leader>c :py VimChat.openGroupChat()<CR>
         vim.command(commands)
         self.setupLeaderMappings()
 
@@ -1146,11 +1146,11 @@ class VimChatScope:
         nnoremap <buffer> <silent> <Leader>l :py VimChat.openLogFromChat()<CR>
         nnoremap <buffer> <silent> <Leader>ov :py VimChat.otrVerifyBuddy()<CR>
         nnoremap <buffer> <silent> <Leader>or :py VimChat.otrSmpRespond()<CR>
-        nnoremap <buffer> <silent> <Leader>c :py VimChat.openGroupChat()<CR>
         nnoremap <buffer> <silent> <Leader>j :py VimChat.joinChatroom()<CR>
         nnoremap <buffer> <silent> <Leader>on :py VimChat.signOn()<CR>
         nnoremap <buffer> <silent> <Leader>off :py VimChat.signOff()<CR>
         """
+        # nnoremap <buffer> <silent> <Leader>c :py VimChat.openGroupChat()<CR>
         vim.command(commands)
 
     def sendBufferShow(self):
@@ -1425,7 +1425,8 @@ class VimChatScope:
             return 0
 
         connection = self.accounts[account]
-        chatBuf = self.getBufByName(connection._chats[toJid])
+        chatFile = connection._chats[toJid]
+        chatBuf = self.getBufByName(chatFile)
         if not chatBuf:
             print "Chat Buffer Could not be found!"
             return 0
@@ -1437,7 +1438,7 @@ class VimChatScope:
 
         body = body.strip()
 
-        if self.isGroupChat():
+        if chatFile.startswith('groupchat'):
             connection.jabberSendGroupChatMessage(toJid, body)
         else:
             connection.jabberOnSendMessage(toJid, body)
@@ -1449,7 +1450,7 @@ class VimChatScope:
             if secure:
                 secure = "e"
 
-        if not self.isGroupChat():
+        if not chatFile.startswith('groupchat'):
             VimChat.appendMessage(account, chatBuf,body,'Me',secure)
 
         vim.command('hide')
